@@ -1,105 +1,94 @@
-var example1 = function (p) {
-  p.setup = function () {
-    p.createCanvas(610, 300);
-  };
+let currentColor,
+  red,
+  orange,
+  yellow,
+  green,
+  cyan,
+  blue,
+  magenta,
+  brown,
+  white,
+  black;
 
-  p.draw = function () {
-    p.background(100, 255, 100);
-    p.fill(250);
-    p.circle(150, 150, 270);
-    p.rect(325, 15, 270, 270);
-  };
-};
+function setup() {
+  createCanvas(750, 500);
+  background(225);
 
-var myp5 = new p5(example1, "example1");
+  currentColor = 0;
 
-var example2 = function (p) {
-  p.setup = function () {
-    p.createCanvas(400, 400);
-  };
+  red = new colorBox(0, "red");
+  orange = new colorBox(50, "orange");
+  yellow = new colorBox(100, "yellow");
+  green = new colorBox(150, "green");
+  cyan = new colorBox(200, "cyan");
+  blue = new colorBox(250, "blue");
+  magenta = new colorBox(300, "magenta");
+  brown = new colorBox(350, "brown");
+  white = new colorBox(400, "white");
+  black = new colorBox(450, "black");
+}
 
-  p.draw = function () {
-    p.background(250);
-    p.strokeWeight(0);
-    p.fill(255, 0, 0, 100);
-    p.circle(200, 155, 150);
+function draw() {
+  red.appear();
+  orange.appear();
+  yellow.appear();
+  green.appear();
+  cyan.appear();
+  blue.appear();
+  magenta.appear();
+  brown.appear();
+  white.appear();
+  black.appear();
 
-    p.fill(0, 255, 0, 100);
-    p.circle(155, 240, 150);
+  if (mouseIsPressed) {
+    drawing();
 
-    p.fill(0, 0, 255, 100);
-    p.circle(245, 240, 150);
-  };
-};
+    red.onClick();
+    orange.onClick();
+    yellow.onClick();
+    green.onClick();
+    cyan.onClick();
+    blue.onClick();
+    magenta.onClick();
+    brown.onClick();
+    white.onClick();
+    black.onClick();
+  }
+}
 
-var myp5 = new p5(example2, "example2");
+function drawing() {
+  push();
+  stroke(currentColor);
+  strokeWeight(10);
+  line(pmouseX, pmouseY, mouseX, mouseY);
+  pop();
+}
 
-var example3 = function (p) {
-  p.setup = function () {
-    p.createCanvas(610, 300);
-  };
+class colorBox {
+  constructor(y, color) {
+    this.x = 25;
+    this.y = y + 25;
+    this.r = 45;
+    this.color = color;
+  }
 
-  p.draw = function () {
-    p.background(0);
-    p.strokeWeight(0);
+  appear() {
+    push();
+    fill(this.color);
+    strokeWeight(1);
+    stroke(255);
 
-    // pacman
-    p.fill(255, 255, 150);
-    p.circle(150, 150, 270);
+    if (this.color === "white") stroke(25);
 
-    p.fill(0);
-    p.rotate(0.78539816339);
-    p.rect(77, 3, 135, 135);
-    p.rotate(-0.78539816339);
+    circle(this.x, this.y, this.r);
+    pop();
+  }
 
-    // ghost
-    p.fill(255, 75, 75);
-    p.rect(325, 15, 270, 270, 999, 999, 0, 0);
-
-    p.fill(255);
-    p.circle(400, 150, 75);
-    p.circle(517, 150, 75);
-
-    p.fill(50, 50, 255);
-    p.circle(400, 150, 50);
-    p.circle(517, 150, 50);
-  };
-};
-
-var myp5 = new p5(example3, "example3");
-
-var example4 = function (p) {
-  p.setup = function () {
-    p.createCanvas(400, 400);
-  };
-
-  p.draw = function () {
-    p.background(0, 0, 180);
-
-    p.strokeWeight(5);
-    p.stroke(255);
-
-    p.fill(0, 175, 0);
-    p.circle(200, 200, 175);
-
-    p.fill(250, 0, 0);
-
-    p.beginShape();
-
-    let origin = 200;
-    for (let i = 0; i < 6; i++) {
-      let x = 200 + p.sin(((p.PI * 2) / 5) * i) * 90;
-      let y = 200 - p.cos(((p.PI * 2) / 5) * i) * 90;
-      p.vertex(x, y);
-
-      let offset = 3;
-      let x2 = 200 - p.sin(((p.PI * 2) / 5) * (i + offset)) * 40;
-      let y2 = 200 + p.cos(((p.PI * 2) / 5) * (i + offset)) * 40;
-      p.vertex(x2, y2);
+  onClick() {
+    if (mouseIsPressed && mouseX < 50) {
+      if (sqrt(((mouseX - this.x) ^ 2) + ((mouseY - this.y) ^ 2)) < this.r) {
+        currentColor = this.color;
+      }
     }
-
-    p.endShape();
-  };
-};
-
-var myp5 = new p5(example4, "example4");
+  }
+}
