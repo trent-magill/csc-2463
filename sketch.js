@@ -86,9 +86,13 @@ class colorBox {
 
   onClick() {
     if (mouseIsPressed && mouseX < 50) {
-      if (dist(this.x, this.y, mouseX, mouseY) < this.r) {
+      if (dist(this.x, this.y, mouseX, mouseY) < this.r / 2) {
         currentColor = this.color;
       }
+    }
+
+    if (this.color === "green") {
+      console.log(dist(this.x, this.y, mouseX, mouseY));
     }
   }
 }
