@@ -86,7 +86,7 @@ class colorBox {
 
   onClick() {
     if (mouseIsPressed && mouseX < 50) {
-      if (sqrt(((mouseX - this.x) ^ 2) + ((mouseY - this.y) ^ 2)) < this.r) {
+      if (dist(this.x, this.y, mouseX, mouseY) < this.r) {
         currentColor = this.color;
       }
     }
