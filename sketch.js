@@ -118,6 +118,5 @@ class Bug {
   step() {
     this.move();
     this.draw();
-    this.draw();
   }
 }
