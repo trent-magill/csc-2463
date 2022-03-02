@@ -1,62 +1,61 @@
-var sample1 = new Tone.Player("sample1.ogg");
-var sample2 = new Tone.Player("sample2.ogg");
-var sample3 = new Tone.Player("sample3.ogg");
-var sample4 = new Tone.Player("sample4.ogg");
-let sliderValue;
 
-sample1.toMaster();
-sample2.toMaster();
-sample3.toMaster();
-sample4.toMaster();
 
-const distortion = new Tone.Distortion(0);
-distortion.toMaster();
-sample1.connect(distortion);
-sample2.connect(distortion);
-sample3.connect(distortion);
-sample4.connect(distortion);
+const pingPong = new Tone.PingPongDelay("64n", .1);
+const drum = new Tone.MembraneSynth().connect(pingPong);
+pingPong.toMaster();
+drum.toMaster();
 
+let volume, effect;
 
 function setup() {
-  textSize(16);
-  text('Distortion', 10, 90);
+  text('Slider 1: Volume', 10, 70);
+  text('Slider 2: Effect', 10, 90);
 
-  slider = createSlider(0, 1, 0, .1)
+  sliderVolume = createSlider(-64, -32, -32, 1);
 
-  button1 = createButton("Sample 1 (Sand)", "Sample 1");
-  button1.mousePressed(playSample1);
-
-  button1 = createButton("Sample 2 (Door)", "Sample 2");
-  button1.mousePressed(playSample2);
-
-  button1 = createButton("Sample 3 (Glass)", "Sample 3");
-  button1.mousePressed(playSample3);
-
-  button1 = createButton("Sample 4 (Exp)", "Sample 4");
-  button1.mousePressed(playSample4);
-
+  sliderEffect = createSlider(0, 1, 0, .1)
 
 }
-
 
 function draw() {
   getAudioContext().resume();
-  sliderValue = slider.value();
-  distortion.set({ distortion: sliderValue })
-}
-// ??? TONE.JS JANK...
-function playSample1() {
-  sample1.start();
+
+  volume = sliderVolume.value();
+  effect = sliderEffect.value();
+
+  drum.set({
+    volume: volume,
+  });
+  pingPong.set({ delayTime: effect })
 }
 
-function playSample2() {
-  sample2.start();
-}
+function keyTyped() {
+  if (key === 'z') {
+    drum.triggerAttackRelease("C4", "32n");
 
-function playSample3() {
-  sample3.start();
-}
-
-function playSample4() {
-  sample4.start();
+  } else if (key === 's') {
+    drum.triggerAttackRelease("C#4", "32n");
+  } else if (key === 'x') {
+    drum.triggerAttackRelease("D4", "32n");
+  } else if (key === 'd') {
+    drum.triggerAttackRelease("D#4", "32n");
+  } else if (key === 'c') {
+    drum.triggerAttackRelease("E4", "32n");
+  } else if (key === 'v') {
+    drum.triggerAttackRelease("F4", "32n");
+  } else if (key === 'g') {
+    drum.triggerAttackRelease("F#4", "32n");
+  } else if (key === 'b') {
+    drum.triggerAttackRelease("G4", "32n");
+  } else if (key === 'h') {
+    drum.triggerAttackRelease("G#4", "32n");
+  } else if (key === 'n') {
+    drum.triggerAttackRelease("A4", "32n");
+  } else if (key === 'j') {
+    drum.triggerAttackRelease("A#4", "32n");
+  } else if (key === 'm') {
+    drum.triggerAttackRelease("B4", "32n");
+  } else if (key === ',') {
+    drum.triggerAttackRelease("C5", "32n");
+  }
 }
