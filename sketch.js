@@ -1,4 +1,5 @@
 // https://trent-magill.github.io/csc-2463/
+console.log('Version 3');
 
 // GLOBAL 
 var screenX = 640;
@@ -116,6 +117,8 @@ function draw() {
     Tone.Transport.bpm.value = 120;
     text("BUG SQUISH GAME", 10, 30);
     text("MADE BY TRENT MAGILL", 10, 60);
+    text("(the main menu music doesnt work unless", 10, 400);
+    text("you click somewhere on the page first)", 10, 430);
     startButton.draw();
   } else {
     if (timer > 0) {
