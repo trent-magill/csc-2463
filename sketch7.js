@@ -24,24 +24,25 @@ function draw() {
 
 function mousePressed() {
   currentImage = cat2;
-  membraneSynth.triggerAttackRelease("C2", "4n")
-  membraneSynth2.triggerAttackRelease("C4", "8n")
+  noiseSynth.triggerAttackRelease("C2", "4n")
+  noiseSynth2.triggerAttackRelease("C4", "8n")
 }
 
 function mouseReleased() {
   currentImage = cat1;
 }
 
+
 const plucky = new Tone.DuoSynth();
 const gain0 = new Tone.Gain(.03);
 gain0.toMaster();
-duoSynth.connect(gain0);
+plucky.connect(gain0);
 
 const synth = new Tone.Synth();
 synth.oscillator.type = 'sine';
 const gain = new Tone.Gain(.025)
-clickGain.toMaster();
-synth.connect(clickGain);
+gain.toMaster();
+synth.connect(gain);
 
 const noise = new Tone.Noise("pink").start();
 const autoFilter = new Tone.AutoFilter({ frequency: "2m", baseFrequency: 20, octaves: 8 })
@@ -52,10 +53,10 @@ gain2.toMaster();
 
 const noiseSynth = new Tone.MembraneSynth()
 const gain3 = new Tone.Gain(.1);
-membraneSynth.connect(gain3);
+noiseSynth.connect(gain3);
 
 const noiseSynth2 = new Tone.MembraneSynth()
-membraneSynth2.connect(gain3);
+noiseSynth2.connect(gain3);
 
 gain3.toMaster();
 
@@ -75,9 +76,8 @@ function repeat(time) {
 Tone.Transport.scheduleRepeat(time => { repeat2(time) }, '1n')
 function repeat2(time) {
   let note = notes2[index2 % notes2.length];
-  duoSynth.triggerAttackRelease(note, '8n');
+  plucky.triggerAttackRelease(note, '8n');
   index2++;
 }
 
 Tone.Transport.start();
-

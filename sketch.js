@@ -1,3 +1,5 @@
+// https://trent-magill.github.io/csc-2463/
+
 // GLOBAL 
 var screenX = 640;
 var screenY = 480;
@@ -82,13 +84,20 @@ function whole(time) {
   notesIndex++;
 }
 
+Tone.Transport.start();
 
 // P5JS
 function preload() {
+  Tone.Transport.start();
+  getAudioContext().resume();
+
   BugSheet = loadImage("Bug-Sheet.png");
 }
 
 function setup() {
+  Tone.Transport.start();
+  getAudioContext().resume();
+
   createCanvas(screenX, screenY);
   imageMode(CENTER);
 
@@ -98,9 +107,8 @@ function setup() {
 }
 
 function draw() {
-  getAudioContext().resume();
   Tone.Transport.start();
-
+  getAudioContext().resume();
   textSize(32);
   background(225, 225, 255);
 
@@ -133,6 +141,11 @@ function draw() {
 }
 
 function mousePressed() {
+  // there is no godly reason why this should be necessary, but the music doesnt work without this if statement in place
+  if (start) {
+    membraneSynth.triggerAttackRelease("C1", "4n")
+  }
+
   bugs.forEach(bug => bug.click(mouseX, mouseY))
   startButton.click(mouseX, mouseY)
 }
