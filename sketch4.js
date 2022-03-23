@@ -3,7 +3,7 @@ var screenX = 640;
 var screenY = 480;
 
 var BugSheet, bugs;
-var time = 30;
+var timer = 30;
 var score = 0;
 
 // P5JS
@@ -23,16 +23,16 @@ function draw() {
   background(225, 225, 255);
 
 
-  if (time > 0) {
+  if (timer > 0) {
     // bugs
     bugs.forEach(bug => bug.step());
 
     // timer
-    if (frameCount % 60 === 0) time--
+    if (frameCount % 60 === 0) timer--
 
     // score
     textSize(32);
-    text("Time: " + time, 10, 30);
+    text("Time: " + timer, 10, 30);
     text("Score: " + score, 10, 60);
   } else {
     // end
