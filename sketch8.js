@@ -1,13 +1,6 @@
 // https://trent-magill.github.io/csc-2463/
 console.log('Version 3');
 
-// SERIAL
-let serialPDM;
-let portName = "COM3";
-let serialClick = 0;
-let serialX = 0;
-let serialY = 0;
-
 // GLOBAL 
 var screenX = 640;
 var screenY = 480;
@@ -16,7 +9,6 @@ var BugSheet, bugs;
 var timer = 0;
 var score = 0;
 var start = true;
-var crosshairSheet;
 
 // TONEJS
 const clickGain = new Tone.Gain(.05);
@@ -101,11 +93,9 @@ function preload() {
   getAudioContext().resume();
 
   BugSheet = loadImage("Bug-Sheet.png");
-  crosshairSheet = loadImage("crosshair.png");
 }
 
 function setup() {
-  serialPDM = new PDMSerial(portName);
   Tone.Transport.start();
   getAudioContext().resume();
 
@@ -114,14 +104,10 @@ function setup() {
 
   bugs = [new Bug(true), new Bug(false), new Bug(false)]
   startButton = new StartButton();
-  crossHair = new CrossHair();
 
 }
 
 function draw() {
-  serialClick = serialPDM.sensorData.a0
-  serialX = serialPDM.sensorData.a1
-  serialY = serialPDM.sensorData.a2
   Tone.Transport.start();
   getAudioContext().resume();
   textSize(32);
@@ -138,9 +124,6 @@ function draw() {
     if (timer > 0) {
       // bugs
       bugs.forEach(bug => bug.step());
-
-      // crosshair
-      crossHair.step();
 
       // timer
       if (frameCount % 60 === 0) timer--
@@ -209,7 +192,6 @@ class Bug {
     let distance = dist(this.x, this.y, mouseX, mouseY);
     if (distance < 25) {
       // die
-      serialPDM.transmit('kill', 1);
       membraneSynth.triggerAttackRelease("B4", "4n")
       membraneSynth2.triggerAttackRelease("C5", "8n")
 
@@ -283,36 +265,4 @@ class StartButton {
     pop();
   }
 
-}
-
-// CROSSHAIR
-class CrossHair {
-  constructor() {
-    this.x = 320;
-    this.y = 240;
-    this.clickCheck = 1;
-  }
-
-  step() {
-    // update the position
-    this.x += (serialX - 512) * .01;
-    this.y += (serialY - 512) * .01;
-
-    // check click
-    if (serialClick === 0 && this.clickCheck === 1) {
-      bugs.forEach(bug => bug.click(this.x, this.y))
-    }
-    this.clickCheck = serialClick;
-
-
-    // draw it
-    push();
-
-    translate(this.x, this.y);
-    scale(3, 3);
-    noSmooth();
-    image(crosshairSheet, 0, 0, 16, 16, this.frame * 16, 0, 16);
-
-    pop();
-  }
 }
