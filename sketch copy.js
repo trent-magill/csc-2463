@@ -5,19 +5,18 @@ console.log('Version 3');
 let serialPDM;
 let portName = "COM3";
 let serialDistance = 0;
+let serialX = 0;
+let serialY = 0;
 
 // GLOBAL 
 var screenX = 640;
 var screenY = 480;
 
-var RatsSheet, rats, dungeonGround;
+var RatsSheet, rats;
 var timer = 0;
-var finalTime = 0;
 var score = 0;
 var start = true;
 var playerSheet;
-var playerX = 0;
-var playerY = 0;
 
 // TONEJS
 const clickGain = new Tone.Gain(.05);
@@ -103,7 +102,6 @@ function preload() {
 
   RatsSheet = loadImage("Bug-Sheet.png");
   playerSheet = loadImage("crosshair.png");
-  dungeonGround = loadImage("dungeon_ground.png");
 }
 
 function setup() {
@@ -114,7 +112,7 @@ function setup() {
   createCanvas(screenX, screenY);
   imageMode(CENTER);
 
-  rats = []
+  rats = [new Bug(true), new Bug(false), new Bug(false)]
   startButton = new StartButton();
   crossHair = new CrossHair();
 
@@ -122,65 +120,39 @@ function setup() {
 
 function draw() {
   serialDistance = serialPDM.sensorData.a0
+  serialX = serialPDM.sensorData.a1
+  serialY = serialPDM.sensorData.a2
   Tone.Transport.start();
   getAudioContext().resume();
   textSize(32);
-  imageMode(CORNER)
-  background(dungeonGround);
-  imageMode(CENTER)
+  background(225, 225, 255);
 
   if (start) {
     Tone.Transport.bpm.value = 120;
-    fill(255)
-    textStyle(BOLD)
-    textSize(50)
-    text("RAT AVOIDER 2000", 80, 150);
-    textStyle(NORMAL)
-    textSize(32)
-    text("by Trent", 250, 190);
+    text("BUG SQUISH GAME", 10, 30);
+    text("MADE BY TRENT MAGILL", 10, 60);
+    text("(the main menu music doesnt work unless", 10, 400);
+    text("you click somewhere on the page first)", 10, 430);
     startButton.draw();
-
   } else {
     if (timer > 0) {
-      imageMode(CORNERS);
-      noSmooth();
-      image(dungeonGround, 0, 0, 256, 256);
-      image(dungeonGround, 256, 256, 512, 512);
-      image(dungeonGround, 256, 0, 512, 256);
-      image(dungeonGround, 0, 256, 256, 512);
-      smooth();
-      imageMode(CENTER)
+      // bugs
       rats.forEach(bug => bug.step());
 
+      // crosshair
       crossHair.step();
 
       // timer
       if (frameCount % 60 === 0) timer--
 
       // score
-      line(512, 0, 512, 512);
-      textSize(24)
-      textStyle(BOLD)
-      text("TIME: " + timer, 525, 30);
-      textStyle(NORMAL)
-      text("Score: " + score, 525, 60);
-      text("Rats: " + rats.length, 525, 90);
+      text("Time: " + timer, 10, 30);
+      text("Score: " + score, 10, 60);
     } else {
       // end
       Tone.Transport.bpm.value = 120;
-      textStyle(BOLD)
-      textSize(50)
-
-      text("GAME OVER", 150, 120);
-      textStyle(NORMAL)
-      textSize(32)
-
-      text("You survived for " + finalTime + " seconds", 120, 160);
-      text("Rats avoided: " + rats.length, 200, 230);
-      text("Final score: " + score, 200, 260);
-
-      text("TRY AGAIN?", 210, 330)
-
+      text("GAME OVER", 10, 30);
+      text("Final score: " + score, 10, 60);
       startButton.draw();
     }
 
@@ -194,19 +166,20 @@ function mousePressed() {
     membraneSynth.triggerAttackRelease("C1", "4n")
   }
 
+  rats.forEach(bug => bug.click(mouseX, mouseY))
   startButton.click(mouseX, mouseY)
 }
 
 // BUG
 class Bug {
   constructor(missDetect) {
-    this.x = 500
+    this.x = random(50, screenX - 50)
     this.y = random(50, screenY - 50)
     this.frame = 0;
     this.scaleY = 1;
 
     this.dead = false;
-    this.moveSpeedX = random(-3, -2);
+    this.moveSpeedX = random(-2, 2);
     this.moveSpeedY = random(-1, 1);
     this.missDetect = missDetect;
   }
@@ -218,21 +191,48 @@ class Bug {
     this.y += this.moveSpeedY;
 
     // update movespeed
-    if (this.x < -20) {
-      this.x = 500
-      score++;
-
-      if (this.missDetect) rats.push(new Bug())
-    }
+    if (this.x < 0 || this.x > screenX) this.moveSpeedX *= -1;
 
     if (this.y < 0 || this.y > screenY) this.moveSpeedY *= -1;
+  }
 
-    if (abs(this.x - playerX) < 20) {
-      if (abs(this.y - playerY) < 20) {
-        crossHair.die();
-      }
+  click(mouseX, mouseY) {
+    if (timer < 1) return;
 
+    if (this.missDetect === true) {
+      membraneSynth.triggerAttackRelease("C3", "4n")
+      membraneSynth2.triggerAttackRelease("C2", "8n")
     }
+
+    if (this.dead) return;
+
+    let distance = dist(this.x, this.y, mouseX, mouseY);
+    if (distance < 25) {
+      // die
+      serialPDM.transmit('kill', 1);
+      membraneSynth.triggerAttackRelease("B4", "4n")
+      membraneSynth2.triggerAttackRelease("C5", "8n")
+
+      this.dead = true;
+      score++;
+
+      // make a new bug and speed up all bugs 
+      // chance to spawn 2 bugs
+      if (this.x % 2 > 1) rats.push(new Bug())
+      else { rats.push(new Bug()); rats.push(new Bug()); }
+      // speed up less if fast
+      rats.forEach(bug => {
+        if (bug.moveSpeedX < 1) {
+        } else if (bug.moveSpeedX < 5) {
+          bug.moveSpeedX *= 1.5, bug.moveSpeedY *= 1.25;
+        } else if (bug.moveSpeedX < 10) {
+          bug.moveSpeedX *= 1.25, bug.moveSpeedY *= 1.1;
+        } else if (bug.moveSpeedX < 20) {
+          bug.moveSpeedX *= 1.1, bug.moveSpeedY *= 1.05;
+        }
+      })
+    }
+
   }
 
   draw() {
@@ -262,11 +262,11 @@ class StartButton {
   click(mouseX, mouseY) {
 
     if (timer > 0) return;
-    if (mouseX > 240 && mouseX < 365 && mouseY > 350 && mouseY < 400) {
+    if (mouseX > 160 && mouseX < 460 && mouseY > 220 && mouseY < 270) {
       start = false;
       timer = 30;
       score = 0;
-      rats = [new Bug(true)]
+      rats = [new Bug(true), new Bug(false), new Bug(false)]
       Tone.Transport.bpm.rampTo(150, 30);
     }
   }
@@ -275,11 +275,9 @@ class StartButton {
     // draw
     push();
 
-    translate(240, 350)
-    stroke(255)
-    text("START", 11, 36);
-    noFill();
-    rect(0, 0, 125, 50);
+    translate(160, 220)
+    rect(0, 0, 300, 50);
+    text("START THE GAME", 11, 36);
 
 
     pop();
@@ -290,17 +288,22 @@ class StartButton {
 // CROSSHAIR
 class CrossHair {
   constructor() {
-    this.x = 50;
+    this.x = 320;
     this.y = 240;
+    this.clickCheck = 1;
   }
 
   step() {
     // update the position
-    let targetY = constrain(serialDistance, 3, 30) * 15;
-    this.y += (targetY - this.y) * .1;
+    this.x += (serialX - 512) * .01;
+    this.y += (serialY - 512) * .01;
 
-    playerX = this.x;
-    playerY = this.y;
+    // check click
+    if (serialDistance === 0 && this.clickCheck === 1) {
+      rats.forEach(bug => bug.click(this.x, this.y))
+    }
+    this.clickCheck = serialDistance;
+
 
     // draw it
     push();
@@ -311,14 +314,5 @@ class CrossHair {
     image(playerSheet, 0, 0, 16, 16, this.frame * 16, 0, 16);
 
     pop();
-  }
-
-  die() {
-    serialPDM.transmit('kill', 1);
-    membraneSynth.triggerAttackRelease("B4", "4n")
-    membraneSynth2.triggerAttackRelease("C5", "8n")
-
-    finalTime = 30 - timer;
-    timer = 0;
   }
 }

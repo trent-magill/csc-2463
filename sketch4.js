@@ -2,20 +2,20 @@
 var screenX = 640;
 var screenY = 480;
 
-var BugSheet, bugs;
+var RatsSheet, rats;
 var timer = 30;
 var score = 0;
 
 // P5JS
 function preload() {
-  BugSheet = loadImage("Bug-Sheet.png");
+  RatsSheet = loadImage("Bug-Sheet.png");
 }
 
 function setup() {
   createCanvas(screenX, screenY);
   imageMode(CENTER);
 
-  bugs = [new Bug(), new Bug(), new Bug()]
+  rats = [new Bug(), new Bug(), new Bug()]
 
 }
 
@@ -25,7 +25,7 @@ function draw() {
 
   if (timer > 0) {
     // bugs
-    bugs.forEach(bug => bug.step());
+    rats.forEach(bug => bug.step());
 
     // timer
     if (frameCount % 60 === 0) timer--
@@ -45,7 +45,7 @@ function draw() {
 
 
 function mousePressed() {
-  bugs.forEach(bug => bug.click(mouseX, mouseY))
+  rats.forEach(bug => bug.click(mouseX, mouseY))
 }
 
 // BUG
@@ -83,10 +83,10 @@ class Bug {
 
       // make a new bug and speed up all bugs 
       // chance to spawn 2 bugs
-      if (this.x % 2 > 1) bugs.push(new Bug())
-      else { bugs.push(new Bug()); bugs.push(new Bug()); }
+      if (this.x % 2 > 1) rats.push(new Bug())
+      else { rats.push(new Bug()); rats.push(new Bug()); }
       // speed up less if fast
-      bugs.forEach(bug => {
+      rats.forEach(bug => {
         if (bug.moveSpeedX < 1) {
         } else if (bug.moveSpeedX < 5) {
           bug.moveSpeedX *= 1.5, bug.moveSpeedY *= 1.25;
@@ -110,7 +110,7 @@ class Bug {
     translate(this.x, this.y);
     scale(3 * this.scaleY, 3);
     noSmooth();
-    image(BugSheet, 0, 0, 16, 16, this.frame * 16, 0, 16);
+    image(RatsSheet, 0, 0, 16, 16, this.frame * 16, 0, 16);
 
     pop();
   }

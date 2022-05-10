@@ -5,7 +5,7 @@ console.log('Version 3');
 var screenX = 640;
 var screenY = 480;
 
-var BugSheet, bugs;
+var RatsSheet, rats;
 var timer = 0;
 var score = 0;
 var start = true;
@@ -92,7 +92,7 @@ function preload() {
   Tone.Transport.start();
   getAudioContext().resume();
 
-  BugSheet = loadImage("Bug-Sheet.png");
+  RatsSheet = loadImage("Bug-Sheet.png");
 }
 
 function setup() {
@@ -102,7 +102,7 @@ function setup() {
   createCanvas(screenX, screenY);
   imageMode(CENTER);
 
-  bugs = [new Bug(true), new Bug(false), new Bug(false)]
+  rats = [new Bug(true), new Bug(false), new Bug(false)]
   startButton = new StartButton();
 
 }
@@ -123,7 +123,7 @@ function draw() {
   } else {
     if (timer > 0) {
       // bugs
-      bugs.forEach(bug => bug.step());
+      rats.forEach(bug => bug.step());
 
       // timer
       if (frameCount % 60 === 0) timer--
@@ -149,7 +149,7 @@ function mousePressed() {
     membraneSynth.triggerAttackRelease("C1", "4n")
   }
 
-  bugs.forEach(bug => bug.click(mouseX, mouseY))
+  rats.forEach(bug => bug.click(mouseX, mouseY))
   startButton.click(mouseX, mouseY)
 }
 
@@ -200,10 +200,10 @@ class Bug {
 
       // make a new bug and speed up all bugs 
       // chance to spawn 2 bugs
-      if (this.x % 2 > 1) bugs.push(new Bug())
-      else { bugs.push(new Bug()); bugs.push(new Bug()); }
+      if (this.x % 2 > 1) rats.push(new Bug())
+      else { rats.push(new Bug()); rats.push(new Bug()); }
       // speed up less if fast
-      bugs.forEach(bug => {
+      rats.forEach(bug => {
         if (bug.moveSpeedX < 1) {
         } else if (bug.moveSpeedX < 5) {
           bug.moveSpeedX *= 1.5, bug.moveSpeedY *= 1.25;
@@ -228,7 +228,7 @@ class Bug {
     translate(this.x, this.y);
     scale(3 * this.scaleY, 3);
     noSmooth();
-    image(BugSheet, 0, 0, 16, 16, this.frame * 16, 0, 16);
+    image(RatsSheet, 0, 0, 16, 16, this.frame * 16, 0, 16);
 
     pop();
   }
@@ -248,7 +248,7 @@ class StartButton {
       start = false;
       timer = 30;
       score = 0;
-      bugs = [new Bug(true), new Bug(false), new Bug(false)]
+      rats = [new Bug(true), new Bug(false), new Bug(false)]
       Tone.Transport.bpm.rampTo(150, 30);
     }
   }
